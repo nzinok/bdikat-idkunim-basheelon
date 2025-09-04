@@ -272,38 +272,37 @@
             const requiredMark = item.required ? `<span class="required-mark">*</span>` : '';
             const itemType = item.type.toLowerCase();
             const currentValue = answers[answerKey];
-
+            
+            let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
+        
             if (itemType === 'הוראות') {
-                let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
                 return `<div class="instruction-text" style="${alignStyle}">${item.html}</div>`;
             }
             if (itemType === 'אישור') return buildConfirmationHtml(item, currentValue, answerKey, safeId);
             if (itemType === 'מייל_מזוהה') return buildPrefilledEmailHtml(item, answerKey);
-
-            // --- THIS IS THE CHANGE ---
-            let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
-            let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}"><div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div><div class="question-input">`;
-            // --- END OF CHANGE ---
+        
+            let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}">
+                          <div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div>
+                          <div class="question-input">`;
             
-            if(itemType.startsWith('טקסט') || itemType.startsWith('מספר') || itemType.startsWith('שם')) { 
-                const inputType = itemType.startsWith('מספר') ? 'number' : 'text'; 
-                const tag = itemType.startsWith('טקסט') ? `<textarea oninput="handleTyping(this)" onblur="handleTextBlur(this)" rows="4">${currentValue || ''}</textarea>` : `<input type="${inputType}" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`; 
-                html += tag; 
-            } else if(itemType.startsWith('דירוג')) { 
-                html += buildRatingHtml(item, currentValue, answerKey); 
-            } else if(itemType.startsWith('בחירה מרובה')) { 
-                html += buildCheckboxHtml(item, currentValue, answerKey, safeId); 
-            } else if(itemType.startsWith('בחירה מתוך רשימה')) { 
-                html += buildSelectHtml(item, currentValue, answerKey, safeId); 
-            } else if(itemType.startsWith('קובץ')) { 
-                html += buildFileUploadHtml({question: item.question, required: item.required}, answerKey, safeId); 
-            } else { 
-                html += `<input type="text" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`; 
+            if (itemType.startsWith('טקסט') || itemType.startsWith('מספר') || itemType.startsWith('שם')) {
+                const inputType = itemType.startsWith('מספר') ? 'number' : 'text';
+                const tag = itemType.startsWith('טקסט') ? `<textarea oninput="handleTyping(this)" onblur="handleTextBlur(this)" rows="4">${currentValue || ''}</textarea>` : `<input type="${inputType}" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`;
+                html += tag;
+            } else if (itemType.startsWith('דירוג')) {
+                html += buildRatingHtml(item, currentValue, answerKey);
+            } else if (itemType.startsWith('בחירה מרובה')) {
+                html += buildCheckboxHtml(item, currentValue, answerKey, safeId);
+            } else if (itemType.startsWith('בחירה מתוך רשימה')) {
+                html += buildSelectHtml(item, currentValue, answerKey, safeId);
+            } else if (itemType.startsWith('קובץ')) {
+                html += buildFileUploadHtml({ question: item.question, required: item.required }, answerKey, safeId);
+            } else {
+                html += `<input type="text" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`;
             }
             
             return html + `</div><div class="error-message-inline"></div></div>`;
         }
-
         function buildConfirmationHtml(item, currentValue, answerKey, safeId) {
             console.log('Building confirmation with details:', item.details);
             
