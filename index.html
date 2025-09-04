@@ -273,11 +273,17 @@
             const itemType = item.type.toLowerCase();
             const currentValue = answers[answerKey];
 
-            if (itemType === 'הוראות') return `<div class="instruction-text">${item.text}</div>`;
+            if (itemType === 'הוראות') {
+                let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
+                return `<div class="instruction-text" style="${alignStyle}">${item.html}</div>`;
+            }
             if (itemType === 'אישור') return buildConfirmationHtml(item, currentValue, answerKey, safeId);
             if (itemType === 'מייל_מזוהה') return buildPrefilledEmailHtml(item, answerKey);
 
-            let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}"><div class="question-text">${item.question}${requiredMark}</div><div class="question-input">`;
+            // --- THIS IS THE CHANGE ---
+            let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
+            let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}"><div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div><div class="question-input">`;
+            // --- END OF CHANGE ---
             
             if(itemType.startsWith('טקסט') || itemType.startsWith('מספר') || itemType.startsWith('שם')) { 
                 const inputType = itemType.startsWith('מספר') ? 'number' : 'text'; 
