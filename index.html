@@ -167,41 +167,40 @@
             }
         }
         
-        /**
-         * [FINAL VERSION with ALIGNMENT]
-         * Handles received data and applies full formatting (HTML + alignment)
-         * to the introduction elements.
-         */
         function onDataReceived(response) {
-            if(!response.success) return onLoadError(new Error(response.message)); 
-            
-            ui.progressHeader.style.display = 'block';
-            
-            if(response.introduction){
-                // --- THIS IS THE FIX ---
-                // Apply alignment as a style, and content as HTML
-                ui.introTitle.style.textAlign = response.introduction.titleAlign;
-                ui.introTitle.innerHTML = response.introduction.title;
+          if (!response.success) return onLoadError(new Error(response.message));
         
-                // Keep the top header as clean, plain text
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = response.introduction.title;
-                ui.headerTitle.textContent = tempDiv.textContent || tempDiv.innerText || '';
-                
-                ui.introBody.style.textAlign = response.introduction.bodyAlign;
-                ui.introBody.innerHTML = response.introduction.body;
+          if (ui.progressHeader) ui.progressHeader.style.display = 'block';
+        
+          if (response.introduction) {
+            const intro = response.introduction;
+        
+            ui.introTitle.style.textAlign = intro.titleAlign || 'right';
+            ui.introTitle.innerHTML = intro.title || '';
+        
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = intro.title || '';
+            ui.headerTitle.textContent = tempDiv.textContent || tempDiv.innerText || '';
+        
+            ui.introBody.style.textAlign = intro.bodyAlign || 'right';
+            ui.introBody.innerHTML = intro.body || '';
+          }
+        
+          questionnaireData = response.data;
+          sections = response.sectionsOrder;
+          sectionHistory = [];
+          if (!sections || sections.length === 0) {
+            return onLoadError(new Error('לא נמצאו מקטעים בשאלון.'));
+          }
+        
+          showView(ui.intro);
+        
+          setTimeout(() => {
+            const mainHeader = document.querySelector('.header');
+            if (mainHeader) {
+              stickyHeaderPoint = mainHeader.offsetTop + mainHeader.offsetHeight;
             }
-            
-            questionnaireData = response.data;
-            sections = response.sectionsOrder;
-            sectionHistory = [];
-            if(sections.length === 0) return onLoadError(new Error('לא נמצאו מקטעים בשאלון.')); 
-            showView(ui.intro);
-            
-            setTimeout(() => {
-                const mainHeader = document.querySelector('.header');
-                if(mainHeader) { stickyHeaderPoint = mainHeader.offsetTop + mainHeader.offsetHeight }
-            }, 100);
+          }, 100);
         }
         function displayCurrentSection() {
             showView(ui.questionnaire);
