@@ -946,9 +946,24 @@
             view.style.display = 'block';
         }
 
+        /**
+         * [IMPROVED ERROR HANDLING]
+         * Displays the specific error message from the server,
+         * or a generic one if the message is too technical.
+         */
         function onLoadError(error) {
             showView(ui.error);
-            ui.error.textContent = `שגיאה בטעינת השאלון: ${error.message}. ודא שקוד הגישה (טוקן) תקין ולא נוצל בעבר.`;
+            
+            // --- THIS IS THE NEW LOGIC ---
+            let displayMessage = error.message;
+            const genericFallback = "ודא שקוד הגישה (טוקן) תקין ולא נוצל בעבר.";
+            
+            // If the error is a generic network error, show the fallback message.
+            if (error.message.toLowerCase().includes('failed to fetch') || error.message.toLowerCase().includes('networkerror')) {
+                displayMessage = genericFallback;
+            }
+            
+            ui.error.textContent = `שגיאה בטעינת השאלון: ${displayMessage}`;
             ui.headerTitle.textContent = 'שגיאת גישה';
         }
 
