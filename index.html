@@ -180,9 +180,9 @@
             
             ui.progressHeader.style.display = 'block';
             if(response.introduction){
-                ui.introTitle.textContent = response.introduction.title;
+                ui.introTitle.innerHTML = response.introduction.title;
                 ui.headerTitle.textContent = response.introduction.title;
-                ui.introBody.textContent = response.introduction.body;
+                ui.introBody.innerHTML = response.introduction.body;
             }
             questionnaireData = response.data;
             sections = response.sectionsOrder;
