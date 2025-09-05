@@ -167,14 +167,23 @@
             }
         }
         
+        /**
+         * [FINAL VERSION with PREFILL FIX]
+         * Correctly saves the prefilled email address from the server.
+         */
         function onDataReceived(response) {
           if (!response.success) return onLoadError(new Error(response.message));
+        
+          // --- THE FIX IS HERE ---
+          if (response.prefillData && response.prefillData.email) {
+            prefilledEmail = response.prefillData.email;
+          }
+          // --- END OF FIX ---
         
           if (ui.progressHeader) ui.progressHeader.style.display = 'block';
         
           if (response.introduction) {
             const intro = response.introduction;
-        
             ui.introTitle.style.textAlign = intro.titleAlign || 'right';
             ui.introTitle.innerHTML = intro.title || '';
         
