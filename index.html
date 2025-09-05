@@ -273,18 +273,10 @@
         }
 
         /**
-         * [FINAL STABLE VERSION]
-         * Formats the question text based on simple markdown-like symbols.
+         * [FINAL VERSION - DISPLAYS RICH TEXT]
+         * Renders the HTML content for questions and instructions.
          */
         function buildItemHtml(item, sectionName, index) {
-            // --- THIS IS THE NEW FORMATTING LOGIC ---
-            let formattedText = item.question || '';
-            // 1. Replace **bold** with <b> tags
-            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            // 2. Replace newlines with <br> tags
-            formattedText = formattedText.replace(/\n/g, '<br>');
-            // --- END OF NEW LOGIC ---
-        
             const sanitizedQuestionText = sanitizeTextForKey(item.question);
             const answerKey = `${sectionName}: ${sanitizedQuestionText}`;
             const safeId = `q-${currentSection}-${index}`;
@@ -294,16 +286,18 @@
             
             let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
         
+            // The logic to display rich text is already here from our 'introduction' fix
             if (itemType === 'הוראות') {
-                return `<div class="instruction-text" style="${alignStyle}">${formattedText}</div>`;
+                return `<div class="instruction-text" style="${alignStyle}">${item.html}</div>`;
             }
             if (itemType === 'אישור') return buildConfirmationHtml(item, currentValue, answerKey, safeId);
             if (itemType === 'מייל_מזוהה') return buildPrefilledEmailHtml(item, answerKey);
         
             let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}">
-                          <div class="question-text" style="${alignStyle}">${formattedText}${requiredMark}</div>
+                          <div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div>
                           <div class="question-input">`;
             
+            // The rest of the function remains the same
             if (itemType.startsWith('טקסט') || itemType.startsWith('מספר') || itemType.startsWith('שם')) {
                 const inputType = itemType.startsWith('מספר') ? 'number' : 'text';
                 const tag = itemType.startsWith('טקסט') ? `<textarea oninput="handleTyping(this)" onblur="handleTextBlur(this)" rows="4">${currentValue || ''}</textarea>` : `<input type="${inputType}" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`;
