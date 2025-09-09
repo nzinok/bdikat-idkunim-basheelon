@@ -331,7 +331,7 @@
             let html = `<div class="confirmation-block" data-required="${item.required || false}" data-key="${answerKey}">`;
             
             if (item.details && item.details.trim() !== '') {
-                html += `<div class="confirmation-details">${item.details.replace(/\n/g, '<br>')}</div>`;
+                html += `<div class="confirmation-details">${item.details}</div>`;
             }
             
             const isChecked = currentValue === 'מאשר';
