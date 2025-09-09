@@ -652,39 +652,31 @@
          * Correctly finds the question element using the data-key attribute,
          * and preserves the full, original validation logic.
          */
-        function saveAnswer(key, value) {
-            if (key === undefined || key === null) {
-                console.error("saveAnswer was called with an undefined/null key. Aborting save.", value);
-                return;
-            }
-            
-            answers[key] = Array.isArray(value) ? value.join(', ') : value;
-            
-            updateProgressBars();
-            
-            // This creates a valid CSS selector that can handle quotes
-            const escapedKey = key.replace(/"/g, '\\"');
-            const element = document.querySelector(`[data-key="${escapedKey}"]`);
-            
-            // This is your full, original validation logic, which is correct
-            if (element) {
-                const answer = answers[key];
-                const isEmpty = !answer || (typeof answer === 'object' && !answer.url) || (Array.isArray(answer) && answer.length === 0) || (typeof answer === 'string' && String(answer).trim() === '' || answer === false);
-                
-                element.classList.toggle('invalid', isEmpty);
-                const errorEl = element.querySelector('.error-message-inline');
-                
-                if (errorEl) {
-                    errorEl.textContent = isEmpty ? 'זוהי שאלת חובה.' : '';
-                }
-                
-                if (!isEmpty) {
-                    element.classList.remove('invalid');
-                    const errorEl_inner = element.querySelector('.error-message-inline');
-                    if (errorEl_inner) errorEl_inner.textContent = '';
-                }
-            }
-        }
+        function saveAnswer(key, value) {			
+            if(key === undefined || key === null) {
+                console.error("saveAnswer was called with an undefined/null key. Aborting save.", value);
+                return;
+            }
+            answers[key] = Array.isArray(value) ? value.join(', ') : value;
+            // עדכון מד התקדמות מיד אחרי שמירת תשובה
+            updateProgressBars();
+            const escapedKey = key.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const element = document.querySelector(`[data-required="true"][data-key="${escapedKey}"]`);
+            if(element) {
+                const answer = answers[key];
+                const isEmpty = !answer || (typeof answer === 'object' && !answer.url) || (Array.isArray(answer) && answer.length === 0) || (typeof answer === 'string' && String(answer).trim() === '' || answer === false);
+                element.classList.toggle('invalid', isEmpty);
+                const errorEl = element.querySelector('.error-message-inline');
+                if(errorEl) {
+                    errorEl.textContent = isEmpty ? 'זוהי שאלת חובה.' : '';
+                }
+                if(!isEmpty) {
+                    element.classList.remove('invalid');
+                    const errorEl = element.querySelector('.error-message-inline');
+                    if(errorEl) errorEl.textContent = '';
+                }
+            }
+        }
         function scrollToNext(currentElement) {
             // בדיקה אם גלילה אוטומטית מותרת עבור המקטע הנוכחי
             const sectionName = sections[currentSection];
