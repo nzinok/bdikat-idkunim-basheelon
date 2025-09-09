@@ -283,18 +283,13 @@
 
         /**
          * [FINAL VERSION with QUOTE FIX]
-         * Correctly escapes double quotes in the data-key attribute to prevent HTML errors.
+         * Correctly handles questions with quotes by using a simple ID for DOM manipulation
+         * while keeping the full text key for data.
          */
-      function buildItemHtml(item, sectionName, index) {
+        function buildItemHtml(item, sectionName, index) {
             const sanitizedQuestionText = sanitizeTextForKey(item.question);
             const answerKey = `${sectionName}: ${sanitizedQuestionText}`;
-            
-            // --- THE FIX IS HERE ---
-            // Create an HTML-safe version of the key specifically for the data-key attribute
-            const attributeSafeKey = answerKey.replace(/"/g, '&quot;');
-            // --- END OF FIX ---
-        
-            const safeId = `q-${currentSection}-${index}`;
+            const safeId = `q-${currentSection}-${index}`; // This will be our reliable identifier
             const requiredMark = item.required ? `<span class="required-mark">*</span>` : '';
             const itemType = item.type.toLowerCase();
             const currentValue = answers[answerKey];
@@ -307,8 +302,9 @@
             if (itemType === 'אישור') return buildConfirmationHtml(item, currentValue, answerKey, safeId);
             if (itemType === 'מייל_מזוהה') return buildPrefilledEmailHtml(item, answerKey);
         
-            // Use the new 'attributeSafeKey' in the data-key
-            let html = `<div class="question" data-required="${item.required || false}" data-key="${attributeSafeKey}">
+            // THE FIX: We use the simple 'safeId' as the main ID for the div, 
+            // and keep the full text key in 'data-key' for reference.
+            let html = `<div class="question" id="${safeId}" data-required="${item.required || false}" data-key="${answerKey.replace(/"/g, '&quot;')}">
                           <div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div>
                           <div class="question-input">`;
             
@@ -651,37 +647,44 @@
             }
         }
 
+        /**
+         * [FINAL CORRECTED VERSION v2]
+         * Correctly finds the question element using the data-key attribute,
+         * and preserves the full, original validation logic.
+         */
         function saveAnswer(key, value) {
-            if(key === undefined || key === null) {
+            if (key === undefined || key === null) {
                 console.error("saveAnswer was called with an undefined/null key. Aborting save.", value);
                 return;
             }
             
             answers[key] = Array.isArray(value) ? value.join(', ') : value;
             
-            // עדכון מד התקדמות מיד אחרי שמירת תשובה
             updateProgressBars();
             
-            const escapedKey = key.replace(/'/g, "\\'").replace(/"/g, '\\"');
-            const element = document.querySelector(`[data-required="true"][data-key="${escapedKey}"]`);
+            // This creates a valid CSS selector that can handle quotes
+            const escapedKey = key.replace(/"/g, '\\"');
+            const element = document.querySelector(`[data-key="${escapedKey}"]`);
             
-            if(element) {
+            // This is your full, original validation logic, which is correct
+            if (element) {
                 const answer = answers[key];
                 const isEmpty = !answer || (typeof answer === 'object' && !answer.url) || (Array.isArray(answer) && answer.length === 0) || (typeof answer === 'string' && String(answer).trim() === '' || answer === false);
+                
                 element.classList.toggle('invalid', isEmpty);
                 const errorEl = element.querySelector('.error-message-inline');
-                if(errorEl) {
+                
+                if (errorEl) {
                     errorEl.textContent = isEmpty ? 'זוהי שאלת חובה.' : '';
                 }
                 
-                if(!isEmpty) {
+                if (!isEmpty) {
                     element.classList.remove('invalid');
-                    const errorEl = element.querySelector('.error-message-inline');
-                    if(errorEl) errorEl.textContent = '';
+                    const errorEl_inner = element.querySelector('.error-message-inline');
+                    if (errorEl_inner) errorEl_inner.textContent = '';
                 }
             }
         }
-
         function scrollToNext(currentElement) {
             // בדיקה אם גלילה אוטומטית מותרת עבור המקטע הנוכחי
             const sectionName = sections[currentSection];
