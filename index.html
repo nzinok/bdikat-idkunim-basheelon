@@ -282,12 +282,18 @@
         }
 
         /**
-         * [FINAL VERSION - DISPLAYS RICH TEXT]
-         * Renders the HTML content for questions and instructions.
+         * [FINAL VERSION with QUOTE FIX]
+         * Correctly escapes double quotes in the data-key attribute to prevent HTML errors.
          */
-        function buildItemHtml(item, sectionName, index) {
+      function buildItemHtml(item, sectionName, index) {
             const sanitizedQuestionText = sanitizeTextForKey(item.question);
             const answerKey = `${sectionName}: ${sanitizedQuestionText}`;
+            
+            // --- THE FIX IS HERE ---
+            // Create an HTML-safe version of the key specifically for the data-key attribute
+            const attributeSafeKey = answerKey.replace(/"/g, '&quot;');
+            // --- END OF FIX ---
+        
             const safeId = `q-${currentSection}-${index}`;
             const requiredMark = item.required ? `<span class="required-mark">*</span>` : '';
             const itemType = item.type.toLowerCase();
@@ -295,18 +301,17 @@
             
             let alignStyle = item.align === 'center' ? 'text-align: center;' : '';
         
-            // The logic to display rich text is already here from our 'introduction' fix
             if (itemType === 'הוראות') {
                 return `<div class="instruction-text" style="${alignStyle}">${item.html}</div>`;
             }
             if (itemType === 'אישור') return buildConfirmationHtml(item, currentValue, answerKey, safeId);
             if (itemType === 'מייל_מזוהה') return buildPrefilledEmailHtml(item, answerKey);
         
-            let html = `<div class="question" data-required="${item.required || false}" data-key="${answerKey}">
+            // Use the new 'attributeSafeKey' in the data-key
+            let html = `<div class="question" data-required="${item.required || false}" data-key="${attributeSafeKey}">
                           <div class="question-text" style="${alignStyle}">${item.html}${requiredMark}</div>
                           <div class="question-input">`;
             
-            // The rest of the function remains the same
             if (itemType.startsWith('טקסט') || itemType.startsWith('מספר') || itemType.startsWith('שם')) {
                 const inputType = itemType.startsWith('מספר') ? 'number' : 'text';
                 const tag = itemType.startsWith('טקסט') ? `<textarea oninput="handleTyping(this)" onblur="handleTextBlur(this)" rows="4">${currentValue || ''}</textarea>` : `<input type="${inputType}" value="${currentValue || ''}" oninput="handleTyping(this)" onblur="handleTextBlur(this)">`;
