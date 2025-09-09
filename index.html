@@ -440,7 +440,7 @@
             const safeAnswerKeyForAttr = JSON.stringify(answerKey);
             return `<div class="question" data-required="${fileItem.required || false}" data-key="${answerKey}">
                         <div class="file-upload-block">
-                            <div class="file-upload-title">${instructionItem.text}</div>
+                            <div class="file-upload-title">${instructionItem.html}</div>
                             <label class="file-drop-area" id="drop-area-${safeId}">
                                 <input type="file" onchange='handleFileSelect(this, ${safeAnswerKeyForAttr}, "${safeId}")'>
                                 <div class="file-drop-icon">📎</div>
